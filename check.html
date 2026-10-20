@@ -1,0 +1,31 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Проверка лисёнка</title>
+<style>body{font:18px/1.4 system-ui,Arial,sans-serif;margin:24px;max-width:760px}h1{font-size:24px}.r{padding:10px 14px;margin:8px 0;border-radius:10px;background:#eee}.ok{background:#d9f2dc}.bad{background:#ffd8d2}.w{background:#fff1c2}small{display:block;color:#444;word-break:break-all}</style></head><body>
+<h1>Проверка видео лисёнка</h1><p>Подождите 10–15 секунд. Потом сделайте скриншот всей страницы и пришлите.</p><div id="o"></div>
+<script>
+var o=document.getElementById('o');
+function add(t,c,d){var e=document.createElement('div');e.className='r '+c;e.textContent=t;if(d){var s=document.createElement('small');s.textContent=d;e.appendChild(s)}o.appendChild(e)}
+var B=location.href.replace(/check\.html.*$/,'');
+add('Браузер','w',navigator.userAgent);
+var v=document.createElement('video');
+add('Умеет ли браузер MP4 (H.264)','w','mp4: '+(v.canPlayType('video/mp4; codecs="avc1.4d4028"')||'НЕТ')+' | webm: '+(v.canPlayType('video/webm; codecs="vp9"')||'НЕТ'));
+var c=document.createElement('canvas'),gl=c.getContext('webgl');
+add('WebGL','w'===0?'w':(gl?'ok':'bad'),gl?'работает':'недоступен');
+function test(name){
+ var url=B+'video/fox-'+name+'.mp4';
+ fetch(url,{mode:'cors'}).then(function(r){add('Файл '+name+'.mp4 скачивается, CORS','ok','код '+r.status+', размер '+r.headers.get('content-length')+', access-control-allow-origin: '+r.headers.get('access-control-allow-origin'));return r.blob()})
+ .then(function(b){add('Скачано байт: '+b.size,b.size>10000?'ok':'bad')},function(e){add('Файл '+name+'.mp4 НЕ скачался ('+e+')','bad',url)});
+ var vid=document.createElement('video');vid.muted=true;vid.playsInline=true;vid.crossOrigin='anonymous';vid.preload='auto';
+ ['loadedmetadata','loadeddata','canplay','canplaythrough','playing','ended','error','stalled','abort'].forEach(function(ev){vid.addEventListener(ev,function(){add(name+': событие '+ev+(ev=='error'&&vid.error?' код '+vid.error.code+' '+vid.error.message:''),ev=='error'?'bad':'')})});
+ vid.src=url;document.body.appendChild(vid);vid.style.cssText='width:2px;height:2px;opacity:0;position:absolute';
+ vid.addEventListener('loadeddata',function(){
+  add(name+': размер видео '+vid.videoWidth+'×'+vid.videoHeight+', длина '+vid.duration.toFixed(1)+' c','ok');
+  var p=vid.play();if(p&&p.then)p.then(function(){add(name+': play() разрешён','ok')},function(e){add(name+': play() отклонён: '+e.name,'bad')});
+  setTimeout(function(){try{
+   var g=document.createElement('canvas').getContext('webgl');var t=g.createTexture();g.bindTexture(g.TEXTURE_2D,t);
+   g.texImage2D(g.TEXTURE_2D,0,g.RGBA,g.RGBA,g.UNSIGNED_BYTE,vid);add(name+': видео можно вывести в WebGL (прозрачность будет работать)','ok');
+  }catch(e){add(name+': ВИДЕО НЕЛЬЗЯ вывести в WebGL: '+e.message,'bad')}
+  try{var cv=document.createElement('canvas');cv.width=cv.height=8;var x=cv.getContext('2d');x.drawImage(vid,0,0,8,8);x.getImageData(0,0,1,1);add(name+': запасной режим (2D) тоже работает','ok')}catch(e){add(name+': запасной режим (2D) не работает: '+e.message,'bad')}
+  },1200)});
+}
+test('wave');setTimeout(function(){test('leaves')},300);
+</script></body></html>
