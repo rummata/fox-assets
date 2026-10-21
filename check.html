@@ -8,6 +8,7 @@ var B=location.href.replace(/check\.html.*$/,'');
 add('Браузер','w',navigator.userAgent);
 var v=document.createElement('video');
 add('Умеет ли браузер MP4 (H.264)','w','mp4: '+(v.canPlayType('video/mp4; codecs="avc1.4d4028"')||'НЕТ')+' | webm: '+(v.canPlayType('video/webm; codecs="vp9"')||'НЕТ'));
+add('Режим «уменьшить анимацию» в системе','w',(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)?'ВКЛЮЧЁН — из-за него видео отключаются':'выключен (хорошо)');
 var c=document.createElement('canvas'),gl=c.getContext('webgl');
 add('WebGL','w'===0?'w':(gl?'ok':'bad'),gl?'работает':'недоступен');
 function test(name){
