@@ -246,6 +246,10 @@
        Должен заканчиваться на «/». Пример: 'https://ivanova.github.io/fox-assets/' */
     assetsBase: 'https://rummata.github.io/fox-assets/',
 
+    /* Системная настройка «уменьшить анимацию» (в Windows: «Показывать анимацию» выключено). false — всё равно показывать видео и листопад (рекомендуется для этого сайта);
+       true — уважать настройку: без видео, листопад слабее. */
+    respectReducedMotion: false,
+
     debug: false,                  // true — подробные сообщения в консоли браузера (F12)
 
     /* ----- Внешний вид (всё необязательно: пустая строка '' = оставить как есть) ----- */
@@ -344,7 +348,7 @@
     leaves: { left: 0.087,  top: -0.559, size: 100.555, }
   };
 
-  var REDUCED = !!(win.matchMedia && win.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var REDUCED = !!(CONFIG.respectReducedMotion && win.matchMedia && win.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var HAS_HOVER = !!(win.matchMedia && win.matchMedia('(hover: hover) and (pointer: fine)').matches);
 
   /* Диагностика: откройте страницу с добавкой  ?fxdebug  в адресе — внизу экрана появится журнал работы лисёнка */
